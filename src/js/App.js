@@ -27,7 +27,7 @@ class App extends Component {
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevState) {
     if (prevState.count !== this.state.count) {
       const newColor = randomcolor();
       this.setState({ color: newColor });
