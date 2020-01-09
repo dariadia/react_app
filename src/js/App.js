@@ -1,38 +1,51 @@
 import React, { Component } from "react";
-import "../styles/App.css";
-import "../styles/style.css";
-import TodoItem from "./TodoItem";
-import todosData from "./todosData";
+import randomcolor from "randomcolor";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      todos: todosData
+      count: 0,
+      color: ""
     };
-    this.handleChange = this.handleChange.bind(this);
+    this.increment = this.increment.bind(this);
+    this.decrement = this.decrement.bind(this);
   }
 
-  handleChange(id) {
+  increment() {
     this.setState(prevState => {
-      const updatedTodos = prevState.todos.map(todo => {
-        if (todo.id === id) {
-          todo.completed = !todo.completed;
-        }
-        return todo;
-      });
       return {
-        todos: updatedTodos
+        count: prevState.count + 1
+      };
+    });
+  }
+  decrement() {
+    this.setState(prevState => {
+      return {
+        count: prevState.count - 1
       };
     });
   }
 
-  render() {
-    const todoItems = this.state.todos.map(item => (
-      <TodoItem key={item.id} item={item} handleChange={this.handleChange} />
-    ));
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.count !== this.state.count) {
+      const newColor = randomcolor();
+      this.setState({ color: newColor });
+    }
+  }
 
-    return <div className="todo-list">{todoItems}</div>;
+  render() {
+    return (
+      <div>
+        <h1 style={{ color: this.state.color, margin: 30 }}>
+          {this.state.count}
+        </h1>
+        <button style={{ margin: 30 }} onClick={this.increment}>
+          Increment!
+        </button>
+        <button onClick={this.decrement}>Decrement!</button>
+      </div>
+    );
   }
 }
 
