@@ -6,11 +6,13 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      characters: []
+      characters: [],
+      loading: true
     };
   }
 
   componentDidMount() {
+    this.setState({ loading: false });
     fetch("https://swapi.co/api/people")
       .then(response => response.json())
       .then(data => this.setState({ characters: data.results }));
@@ -23,7 +25,9 @@ class App extends Component {
   }
 
   render() {
-    return <div className="container">{this.renderCharacters()}</div>;
+    const content = this.state.loading ? "loading..." : this.renderCharacters();
+    setTimeout(console.log("Hi!"), 1000); // после каждого render, сейчас вызывается 3 раза
+    return <div className="container">{content}</div>;
   }
 }
 
