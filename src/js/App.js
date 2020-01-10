@@ -1,31 +1,29 @@
 import React, { Component } from "react";
-import Conditional from "./Conditional.js";
+import CharacterCard from "./CharacterCard.js";
+import "../styles/style.css";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      unreadMessages: [
-        "Call your mom!",
-        "New spam email available. All links are definitely safe to click."
-      ]
+      characters: []
     };
   }
-  renderConditionals() {
-    return this.state.unreadMessages.map(el => (
-      <li>
-        <Conditional e={el} />
-      </li>
+
+  componentDidMount() {
+    fetch("https://swapi.co/api/people")
+      .then(response => response.json())
+      .then(data => this.setState({ characters: data.results }));
+  }
+
+  renderCharacters() {
+    return this.state.characters.map(character => (
+      <CharacterCard aboutCharacter={character} key={character.name} />
     ));
   }
-  // &&
+
   render() {
-    return (
-      <div>
-        <h2>You have {this.state.unreadMessages.length} unread messages!</h2>
-        <ol>{this.renderConditionals()}</ol>
-      </div>
-    );
+    return <div className="container">{this.renderCharacters()}</div>;
   }
 }
 
