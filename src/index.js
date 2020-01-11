@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./js/App";
+import "./styles/style.css";
 import * as serviceWorker from "./js/serviceWorker";
 
 ReactDOM.render(<App />, document.getElementById("root"));

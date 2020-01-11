@@ -1,6 +1,6 @@
 import React from "react";
 
-function Header() {
+const Header = () => {
   return (
     <header>
       <img
@@ -10,6 +10,6 @@ function Header() {
       <p>Meme Generator</p>
     </header>
   );
-}
+};
 
 export default Header;
