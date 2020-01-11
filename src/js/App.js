@@ -1,61 +1,164 @@
 import React, { Component } from "react";
-import CharacterCard from "./CharacterCard.js";
 import "../styles/style.css";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      characters: [],
-      loading: true,
-      search: ""
+      firstName: "",
+      lastName: "",
+      age: "",
+      gender: "",
+      destination: "",
+      dietaryRestrictions: {
+        isVegan: false,
+        isKosher: false,
+        isLactoseFree: false
+      }
     };
     this.handleChange = this.handleChange.bind(this);
-  }
-
-  componentDidMount() {
-    this.setState({ loading: false });
-    fetch("https://swapi.co/api/people")
-      .then(response => response.json())
-      .then(data => this.setState({ characters: data.results }));
-  }
-
-  renderCharacters() {
-    return this.state.characters.map(
-      character =>
-        Object.values(character).map(value =>
-          value
-            //есть ли введенный символ среди всех значений объекта
-            .includes(this.state.search)
-            //получаем массив совпадений типа [[true,false],[false,true]], сокращаем до [1,1]
-            .map(el => el.reduce((a, b) => a + b))
-            //сокращаем, если >= 1, то хотя бы одно значение было true, нам подходит этот персонаж
-            .reduce((a, b) => a + b)
-        ) >= 1 && (
-          <CharacterCard aboutCharacter={character} key={character.name} />
-        )
-    );
+    this.getDietaryRestrictions = this.getDietaryRestrictions.bind(this);
   }
 
   handleChange(event) {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
+    const { name, value, type, checked } = event.target;
+    type === "checkbox"
+      ? this.setState(prevState => {
+          return {
+            dietaryRestrictions: {
+              ...prevState.dietaryRestrictions,
+              [name]: checked
+            }
+          };
+        })
+      : this.setState({
+          [name]: value
+        });
+  }
+
+  getDietaryRestrictions() {
+    const values = Object.values(this.state.dietaryRestrictions);
+    const keys = Object.keys(this.state.dietaryRestrictions).map(el =>
+      el.slice(2).toLowerCase()
+    );
+    return values.map((el, index) => `${keys[index]} : ${el}; `);
   }
 
   render() {
-    const content = this.state.loading ? "loading..." : this.renderCharacters();
-    setTimeout(console.log("Rendered!"), 1000); // после каждого render
     return (
       <div className="container">
-        <input
-          type="text"
-          value={this.state.search}
-          name="search"
-          placeholder="Search for ..."
-          onChange={this.handleChange}
-        />
-        <br />
-        {content}
+        <form>
+          <input
+            name="firstName"
+            value={this.state.firstName}
+            onChange={this.handleChange}
+            placeholder="First Name"
+          />
+          <br />
+
+          <input
+            name="lastName"
+            value={this.state.lastName}
+            onChange={this.handleChange}
+            placeholder="Last Name"
+          />
+          <br />
+
+          <input
+            name="age"
+            value={this.state.age}
+            onChange={this.handleChange}
+            placeholder="Age"
+          />
+          <br />
+
+          <label>
+            <input
+              type="radio"
+              name="gender"
+              value="male"
+              checked={this.state.gender === "male"}
+              onChange={this.handleChange}
+            />{" "}
+            Male
+          </label>
+
+          <br />
+
+          <label>
+            <input
+              type="radio"
+              name="gender"
+              value="female"
+              checked={this.state.gender === "female"}
+              onChange={this.handleChange}
+            />{" "}
+            Female
+          </label>
+
+          <br />
+
+          <select
+            value={this.state.destination}
+            name="destination"
+            onChange={this.handleChange}
+          >
+            <option value="">-- Please Choose a destination --</option>
+            <option value="germany">Germany</option>
+            <option value="norway">Norway</option>
+            <option value="north pole">North Pole</option>
+            <option value="south pole">South Pole</option>
+          </select>
+
+          <br />
+
+          <label>
+            <input
+              type="checkbox"
+              name="isVegan"
+              onChange={this.handleChange}
+              checked={this.state.dietaryRestrictions.isVegan}
+            />{" "}
+            Vegan?
+          </label>
+          <br />
+
+          <label>
+            <input
+              type="checkbox"
+              name="isKosher"
+              onChange={this.handleChange}
+              checked={this.state.dietaryRestrictions.isKosher}
+            />{" "}
+            Kosher?
+          </label>
+          <br />
+
+          <label>
+            <input
+              type="checkbox"
+              name="isLactoseFree"
+              onChange={this.handleChange}
+              checked={this.state.dietaryRestrictions.isLactoseFree}
+            />{" "}
+            Lactose Free?
+          </label>
+          <br />
+
+          <button>Submit</button>
+        </form>
+        <hr />
+        <h2>Entered information:</h2>
+        <p>
+          Your name: {this.state.firstName} {this.state.lastName}
+        </p>
+        <p>Your age: {this.state.age}</p>
+        <p>Your gender: {this.state.gender}</p>
+        <p>Your destination: {this.state.destination}</p>
+        <p>
+          Your dietary restrictions:
+          {this.getDietaryRestrictions()}
+        </p>
       </div>
     );
   }
