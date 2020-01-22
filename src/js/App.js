@@ -1,69 +1,75 @@
 import React from "react";
 
-const initialTodos = [
+const initialCharacters = [
   {
     id: "1",
-    task: "Learn React Hooks",
-    complete: false
+    name: "Lra Ofan",
+    convicted: false
   },
   {
     id: "2",
-    task: "Learn Redux",
-    complete: false
-  },
-  {
-    id: "3",
-    task: "Learn Lorem",
-    complete: false
+    name: "Opsad Rioaf ",
+    convicted: false
   }
 ];
 
-const todoReducer = (state, action) => {
+const characterReducer = (state, action) => {
   switch (action.type) {
-    case "DO_TODO":
-      return state.map(todo => {
-        if (todo.id === action.id) {
-          return { ...todo, complete: true };
+    case "SET_FREE":
+      return state.map(character => {
+        if (character.id === action.id) {
+          return { ...character, convicted: false };
         } else {
-          return todo;
+          return character;
         }
       });
-    case "UNDO_TODO":
-      return state.map(todo => {
-        if (todo.id === action.id) {
-          return { ...todo, complete: false };
+    case "CONVICT":
+      return state.map(character => {
+        if (character.id === action.id) {
+          return { ...character, convicted: true };
         } else {
-          return todo;
+          return character;
         }
       });
     default:
       return state;
   }
 };
+
 const App = () => {
-  const [todos, dispatch] = React.useReducer(todoReducer, initialTodos);
-  const handleChange = todo => {
+  const [characters, dispatch] = React.useReducer(
+    characterReducer,
+    initialCharacters
+  );
+
+  const handleChange = character => {
     dispatch({
-      type: todo.complete ? "UNDO_TODO" : "DO_TODO",
-      id: todo.id
+      type: character.convicted ? "SET_FREE" : "CONVICT",
+      id: character.id
     });
   };
 
   return (
-    <ul>
-      {todos.map(todo => (
-        <li key={todo.id}>
-          <label>
-            <input
-              type="checkbox"
-              checked={todo.complete}
-              onChange={() => handleChange(todo)}
-            />
-            {todo.task}
-          </label>
-        </li>
-      ))}
-    </ul>
+    <div>
+      <h1>
+        These characters did sth so we need to check if you have everyone on the
+        list
+      </h1>
+      <ul>
+        {characters.map(character => (
+          <li key={character.id}>
+            <label>
+              <input
+                type="checkbox"
+                checked={character.convicted}
+                onChange={() => handleChange(character)}
+              />
+              {character.name}
+            </label>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
