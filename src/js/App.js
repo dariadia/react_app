@@ -1,36 +1,69 @@
-import React, { useState, useEffect } from "react";
-import randomcolor from "randomcolor";
+import React from "react";
 
+const initialTodos = [
+  {
+    id: "1",
+    task: "Learn React Hooks",
+    complete: false
+  },
+  {
+    id: "2",
+    task: "Learn Redux",
+    complete: false
+  },
+  {
+    id: "3",
+    task: "Learn Lorem",
+    complete: false
+  }
+];
+
+const todoReducer = (state, action) => {
+  switch (action.type) {
+    case "DO_TODO":
+      return state.map(todo => {
+        if (todo.id === action.id) {
+          return { ...todo, complete: true };
+        } else {
+          return todo;
+        }
+      });
+    case "UNDO_TODO":
+      return state.map(todo => {
+        if (todo.id === action.id) {
+          return { ...todo, complete: false };
+        } else {
+          return todo;
+        }
+      });
+    default:
+      return state;
+  }
+};
 const App = () => {
-  const [count, setCount] = useState(0);
-  const [color, setColor] = useState(randomcolor());
-
-  function increment() {
-    setCount(prevCount => prevCount + 1);
-  }
-
-  function decrement() {
-    setCount(prevCount => prevCount - 1);
-  }
-
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     setCount(prevCount => prevCount + 1);
-  //   }, 1000);
-  //   return () => clearInterval(intervalId);
-  // }, []);
-
-  useEffect(() => {
-    setColor(randomcolor());
-    // if empty [], it means setColor only once when the comp mounts
-  }, [count]);
+  const [todos, dispatch] = React.useReducer(todoReducer, initialTodos);
+  const handleChange = todo => {
+    dispatch({
+      type: todo.complete ? "UNDO_TODO" : "DO_TODO",
+      id: todo.id
+    });
+  };
 
   return (
-    <div>
-      <h1 style={{ color: color, margin: 30 }}>{count}</h1>
-      <button onClick={increment}>Increment!</button>
-      <button onClick={decrement}>Decrement!</button>
-    </div>
+    <ul>
+      {todos.map(todo => (
+        <li key={todo.id}>
+          <label>
+            <input
+              type="checkbox"
+              checked={todo.complete}
+              onChange={() => handleChange(todo)}
+            />
+            {todo.task}
+          </label>
+        </li>
+      ))}
+    </ul>
   );
 };
 
