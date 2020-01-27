@@ -1,76 +1,176 @@
-import React from "react";
+import React, { Component } from "react";
+import axios from "axios";
+import "../styles/style.css";
 
-const initialCharacters = [
-  {
-    id: "1",
-    name: "Lra Ofan",
-    convicted: false
-  },
-  {
-    id: "2",
-    name: "Opsad Rioaf ",
-    convicted: false
-  }
-];
+const DEFAULT_QUERY = "react";
+const DEFAULT_HPP = "100";
 
-const characterReducer = (state, action) => {
-  switch (action.type) {
-    case "SET_FREE":
-      return state.map(character => {
-        if (character.id === action.id) {
-          return { ...character, convicted: false };
-        } else {
-          return character;
-        }
-      });
-    case "CONVICT":
-      return state.map(character => {
-        if (character.id === action.id) {
-          return { ...character, convicted: true };
-        } else {
-          return character;
-        }
-      });
-    default:
-      return state;
-  }
+const PATH_BASE = "https://hn.algolia.com/api/v1";
+const PATH_SEARCH = "/search";
+const PARAM_SEARCH = "query=";
+const PARAM_PAGE = "page=";
+const PARAM_HPP = "hitsPerPage=";
+
+const largeColumn = {
+  width: "40%"
 };
 
-const App = () => {
-  const [characters, dispatch] = React.useReducer(
-    characterReducer,
-    initialCharacters
-  );
+const midColumn = {
+  width: "30%"
+};
 
-  const handleChange = character => {
-    dispatch({
-      type: character.convicted ? "SET_FREE" : "CONVICT",
-      id: character.id
+const smallColumn = {
+  width: "10%"
+};
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      results: null,
+      searchKey: "",
+      searchTerm: DEFAULT_QUERY,
+      error: null
+    };
+  }
+
+  needsToSearchTopStories = searchTerm => {
+    return !this.state.results[searchTerm];
+  };
+
+  setSearchTopStories = result => {
+    const { hits, page } = result;
+    const { searchKey, results } = this.state;
+
+    const oldHits =
+      results && results[searchKey] ? results[searchKey].hits : [];
+
+    const updatedHits = [...oldHits, ...hits];
+
+    this.setState({
+      results: {
+        ...results,
+        [searchKey]: { hits: updatedHits, page }
+      }
     });
   };
 
-  return (
-    <div>
-      <h1>
-        These characters did sth so we need to check if you have everyone on the
-        list
-      </h1>
-      <ul>
-        {characters.map(character => (
-          <li key={character.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={character.convicted}
-                onChange={() => handleChange(character)}
-              />
-              {character.name}
-            </label>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+  fetchSearchTopStories = (searchTerm, page = 0) => {
+    axios(
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
+    )
+      .then(result => this.setSearchTopStories(result.data))
+      .catch(error => this.setState({ error }));
+  };
+
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+    this.fetchSearchTopStories(searchTerm);
+  }
+
+  onSearchChange = event => {
+    this.setState({ searchTerm: event.target.value });
+  };
+
+  onSearchSubmit = event => {
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
+
+    event.preventDefault();
+  };
+
+  onDismiss = id => {
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
+    const isNotId = item => item.objectID !== id;
+    const updatedHits = hits.filter(isNotId);
+
+    this.setState({
+      results: {
+        ...results,
+        [searchKey]: { hits: updatedHits, page }
+      }
+    });
+  };
+
+  render() {
+    const { searchTerm, results, searchKey, error } = this.state;
+    const page =
+      (results && results[searchKey] && results[searchKey].page) || 0;
+    const list =
+      (results && results[searchKey] && results[searchKey].hits) || [];
+
+    return (
+      <div className="page">
+        <div className="interactions">
+          <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
+          >
+            Search
+          </Search>
+        </div>
+        {error ? (
+          <div className="interactions">
+            <p>Something went wrong.</p>
+          </div>
+        ) : (
+          <Table list={list} onDismiss={this.onDismiss} />
+        )}
+        <div className="interactions">
+          <Button
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+          >
+            More
+          </Button>
+        </div>
+      </div>
+    );
+  }
+}
+
+const Search = ({ value, onChange, onSubmit, children }) => (
+  <form onSubmit={onSubmit}>
+    <input type="text" value={value} onChange={onChange} />
+    <button type="submit">{children}</button>
+  </form>
+);
+
+const Table = ({ list, onDismiss }) => (
+  <div className="table">
+    {list.map(item => (
+      <div key={item.objectID} className="table-row">
+        <span style={largeColumn}>
+          <a href={item.url}>{item.title}</a>
+        </span>
+        <span style={midColumn}>{item.author}</span>
+        <span style={smallColumn}>{item.num_comments}</span>
+        <span style={smallColumn}>{item.points}</span>
+        <span style={smallColumn}>
+          <Button
+            onClick={() => onDismiss(item.objectID)}
+            className="button-inline"
+          >
+            Dismiss
+          </Button>
+        </span>
+      </div>
+    ))}
+  </div>
+);
+
+const Button = ({ onClick, className = "", children }) => (
+  <button onClick={onClick} className={className} type="button">
+    {children}
+  </button>
+);
 
 export default App;

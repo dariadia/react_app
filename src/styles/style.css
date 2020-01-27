@@ -1,25 +1,63 @@
-div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.page {
+  margin: 20px;
 }
 
-h1 {
-    font-size: 3em;
+.interactions {
+  text-align: center;
 }
 
-button {
-    border: 1px solid lightgray;
-    background-color: transparent;
-    padding: 10px;
-    border-radius: 4px;
+.table {
+  margin: 20px 0;
 }
 
-button:hover {
-    cursor: pointer;
+.table-header {
+  display: flex;
+  line-height: 24px;
+  font-size: 16px;
+  padding: 0 10px;
+  justify-content: space-between;
 }
 
-button:focus {
-    outline: 0;
+.table-empty {
+  margin: 200px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.table-row {
+  display: flex;
+  line-height: 24px;
+  white-space: nowrap;
+  margin: 10px 0;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid #e3e3e3;
+}
+
+.table-header > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+}
+
+.table-row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+}
+
+.button-inline {
+  border-width: 0;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  -webkit-font-smoothing: inherit;
+  padding: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.button-active {
+  border-radius: 0;
+  border-bottom: 1px solid #38bb6c;
 }
