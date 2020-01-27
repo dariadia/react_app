@@ -117,6 +117,7 @@ class App extends Component {
           >
             Search
           </Search>
+          <Reverse onSubmit={this.onSearchSubmit}>Reverse</Reverse>
         </div>
         {error ? (
           <div className="interactions">
@@ -140,6 +141,12 @@ class App extends Component {
 const Search = ({ value, onChange, onSubmit, children }) => (
   <form onSubmit={onSubmit}>
     <input type="text" value={value} onChange={onChange} />
+    <button type="submit">{children}</button>
+  </form>
+);
+
+const Reverse = ({ onSubmit, children }) => (
+  <form onSubmit={onSubmit}>
     <button type="submit">{children}</button>
   </form>
 );
